@@ -1,5 +1,15 @@
+import 'package:e_commerce_project/providers/splash_cubit.dart';
+import 'package:e_commerce_project/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+final kColorSchemeLight = ColorScheme.fromSeed(
+  seedColor: const Color.fromARGB(255, 231, 162, 34),
+);
+final kColorSchemeDark = ColorScheme.fromSeed(
+  brightness: Brightness.dark,
+  seedColor: const Color.fromARGB(255, 231, 162, 34),
+);
 void main() {
   runApp(const MainApp());
 }
@@ -9,11 +19,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
+    return BlocProvider(
+      create: (context) => SplashCubit()..appStarted(),
+      child: MaterialApp(
+        theme: ThemeData.from(colorScheme: kColorSchemeLight),
+        darkTheme: ThemeData.from(colorScheme: kColorSchemeDark),
+        themeMode: ThemeMode.system,
+        home: SplashScreen(),
       ),
     );
   }
