@@ -1,10 +1,10 @@
-import 'package:e_commerce_project/screens/enter_password.dart';
-import 'package:e_commerce_project/screens/signup_page.dart';
+import 'package:e_commerce_project/screens/forgot_password.dart';
+import 'package:e_commerce_project/widgets/custom_appbar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-class SigninPage extends StatelessWidget {
-  const SigninPage({super.key});
+class EnterPasswordPage extends StatelessWidget {
+  const EnterPasswordPage({super.key});
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -13,9 +13,7 @@ class SigninPage extends StatelessWidget {
       },
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-        ),
+        appBar: CustomAppBar(),
         body: Container(
           padding: const EdgeInsets.symmetric(vertical: 110, horizontal: 16),
           decoration: BoxDecoration(
@@ -35,11 +33,11 @@ class SigninPage extends StatelessWidget {
               children: [
                 _text(),
                 SizedBox(height: 20),
-                _emailBox(context),
+                _passwordBox(context),
                 SizedBox(height: 20),
                 _button(context),
                 SizedBox(height: 20),
-                _noAccount(context),
+                _forgotPassword(context),
               ],
             ),
           ),
@@ -59,11 +57,11 @@ class SigninPage extends StatelessWidget {
     );
   }
 
-  Widget _emailBox(BuildContext context) {
+  Widget _passwordBox(BuildContext context) {
     return TextField(
       //autofocus: true,
       decoration: InputDecoration(
-        hintText: 'Enter Email',
+        hintText: 'Enter Password',
         hintStyle: TextStyle(
           color: Colors.grey[300],
           fontWeight: FontWeight.bold,
@@ -81,32 +79,27 @@ class SigninPage extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: 50,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => EnterPasswordPage()),
-          );
-        },
-        child: Text('Continue'),
-      ),
+      child: ElevatedButton(onPressed: () {}, child: Text('Sign In')),
     );
   }
 
-  Widget _noAccount(BuildContext context) {
+  Widget _forgotPassword(BuildContext context) {
     return RichText(
       textScaleFactor: 1.1,
       text: TextSpan(
         children: [
-          TextSpan(text: "Don't have an account? "),
+          TextSpan(text: "Forgot Password? "),
           TextSpan(
             recognizer:
                 TapGestureRecognizer()
                   ..onTap = () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => SignupPage()),
+                      MaterialPageRoute(
+                        builder: (context) => ForgotPasswordPage(),
+                      ),
                     );
                   },
-            text: 'Create One!',
+            text: 'Reset',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ],

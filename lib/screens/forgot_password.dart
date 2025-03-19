@@ -1,10 +1,8 @@
-import 'package:e_commerce_project/screens/enter_password.dart';
-import 'package:e_commerce_project/screens/signup_page.dart';
-import 'package:flutter/gestures.dart';
+import 'package:e_commerce_project/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 
-class SigninPage extends StatelessWidget {
-  const SigninPage({super.key});
+class ForgotPasswordPage extends StatelessWidget {
+  const ForgotPasswordPage({super.key});
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -13,9 +11,7 @@ class SigninPage extends StatelessWidget {
       },
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-        ),
+         appBar: CustomAppBar(),
         body: Container(
           padding: const EdgeInsets.symmetric(vertical: 110, horizontal: 16),
           decoration: BoxDecoration(
@@ -38,8 +34,7 @@ class SigninPage extends StatelessWidget {
                 _emailBox(context),
                 SizedBox(height: 20),
                 _button(context),
-                SizedBox(height: 20),
-                _noAccount(context),
+                
               ],
             ),
           ),
@@ -50,7 +45,7 @@ class SigninPage extends StatelessWidget {
 
   Widget _text() {
     return Text(
-      'Sign In',
+      'Forgot Password',
       style: TextStyle(
         fontSize: 32,
         fontWeight: FontWeight.bold,
@@ -83,34 +78,12 @@ class SigninPage extends StatelessWidget {
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => EnterPasswordPage()),
-          );
+         
         },
         child: Text('Continue'),
       ),
     );
   }
 
-  Widget _noAccount(BuildContext context) {
-    return RichText(
-      textScaleFactor: 1.1,
-      text: TextSpan(
-        children: [
-          TextSpan(text: "Don't have an account? "),
-          TextSpan(
-            recognizer:
-                TapGestureRecognizer()
-                  ..onTap = () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => SignupPage()),
-                    );
-                  },
-            text: 'Create One!',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
-  }
+
 }
