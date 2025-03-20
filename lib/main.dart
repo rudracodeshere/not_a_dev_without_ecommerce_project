@@ -2,6 +2,8 @@ import 'package:e_commerce_project/providers/splash_cubit.dart';
 import 'package:e_commerce_project/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 final kColorSchemeLight = ColorScheme.fromSeed(
   seedColor: const Color.fromARGB(255, 231, 162, 34),
@@ -10,7 +12,11 @@ final kColorSchemeDark = ColorScheme.fromSeed(
   brightness: Brightness.dark,
   seedColor: const Color.fromARGB(255, 231, 162, 34),
 );
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
   runApp(const MainApp());
 }
 

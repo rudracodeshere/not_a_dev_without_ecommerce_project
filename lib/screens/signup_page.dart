@@ -1,10 +1,36 @@
-import 'package:e_commerce_project/screens/enter_password.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce_project/models/user_create.dart';
+import 'package:e_commerce_project/screens/gender_age.dart';
 import 'package:e_commerce_project/widgets/custom_appbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class SignupPage extends StatelessWidget {
   const SignupPage({super.key});
+  void _createAccount(UserCreate user, BuildContext context) async {
+    try {
+      final data = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: user.email,
+        password: user.password,
+      );
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(data.user!.uid)
+          .set({
+            'firstName': user.firstName,
+            'lastName': user.lastName,
+            'email': user.email,
+            'gender': user.gender,
+            'age': user.age,
+          });
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message!)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -143,7 +169,7 @@ class SignupPage extends StatelessWidget {
         onPressed: () {
           Navigator.of(
             context,
-          ).push(MaterialPageRoute(builder: (context) => EnterPasswordPage()));
+          ).push(MaterialPageRoute(builder: (context) => GenderAgePage()));
         },
         child: Text('Continue'),
       ),
