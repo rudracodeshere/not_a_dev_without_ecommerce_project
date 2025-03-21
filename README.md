@@ -1,3 +1,2 @@
-# e_commerce_project
-
-A new Flutter project.
+# E-Commerce
+Not a developer if never made a e-commerce project 😂
