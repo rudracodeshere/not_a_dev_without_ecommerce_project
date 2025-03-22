@@ -8,10 +8,7 @@ import 'firebase_options.dart';
 final kColorSchemeLight = ColorScheme.fromSeed(
   seedColor: const Color.fromARGB(255, 231, 162, 34),
 );
-final kColorSchemeDark = ColorScheme.fromSeed(
-  brightness: Brightness.dark,
-  seedColor: const Color.fromARGB(255, 231, 162, 34),
-);
+
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -29,7 +26,6 @@ class MainApp extends StatelessWidget {
       create: (context) => SplashCubit()..appStarted(),
       child: MaterialApp(
         theme: ThemeData.from(colorScheme: kColorSchemeLight),
-        darkTheme: ThemeData.from(colorScheme: kColorSchemeDark),
         themeMode: ThemeMode.system,
         home: SplashScreen(),
       ),

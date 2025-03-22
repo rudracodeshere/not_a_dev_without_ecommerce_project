@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 import 'package:e_commerce_project/screens/gender_age.dart';
 import 'package:e_commerce_project/widgets/custom_appbar.dart';
 import 'package:flutter/gestures.dart';
@@ -17,17 +18,19 @@ class _SignupPageState extends State<SignupPage> {
   String? lastName;
   String? email;
   String? password;
-
-  @override
+  
+  @override 
   Widget build(BuildContext context) {
+    final keyBoardHeight =  MediaQuery.of(context).viewInsets.bottom;
+  final double topPad = keyBoardHeight == 0 ? 110 : 100;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         extendBodyBehindAppBar: true,
         appBar: CustomAppBar(),
         body: Container(
           height: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 110, horizontal: 16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -38,27 +41,31 @@ class _SignupPageState extends State<SignupPage> {
               end: Alignment.bottomCenter,
             ),
           ),
-          child: SizedBox(
-            width: double.infinity,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTitle(),
-                  const SizedBox(height: 20),
-                  _buildTextField('First Name', (value) => firstName = value),
-                  const SizedBox(height: 20),
-                  _buildTextField('Last Name', (value) => lastName = value),
-                  const SizedBox(height: 20),
-                  _buildTextField('Email Address', (value) => email = value, isEmail: true),
-                  const SizedBox(height: 20),
-                  _buildTextField('Password', (value) => password = value, isPassword: true),
-                  const SizedBox(height: 20),
-                  _buildContinueButton(context),
-                  const SizedBox(height: 20),
-                  _buildSignInText(context),
-                ],
+          child: Padding(
+            padding:  EdgeInsets.symmetric(vertical: topPad, horizontal: 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTitle(),
+                    const SizedBox(height: 20),
+                    _buildTextField('First Name', (value) => firstName = value),
+                    const SizedBox(height: 20),
+                    _buildTextField('Last Name', (value) => lastName = value),
+                    const SizedBox(height: 20),
+                    _buildTextField('Email Address', (value) => email = value, isEmail: true),
+                    const SizedBox(height: 20),
+                    _buildTextField('Password', (value) => password = value, isPassword: true),
+                    const SizedBox(height: 20),
+                    _buildContinueButton(context),
+                    const SizedBox(height: 20),
+                    _buildSignInText(context),
+                    const SizedBox(height: 20), // Added extra padding at bottom
+                  ],
+                ),
               ),
             ),
           ),
@@ -68,9 +75,13 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   Widget _buildTitle() {
-    return const Text(
+    return Text(
       'Create Account',
-      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+      style: TextStyle(
+        fontSize: 32, 
+        fontWeight: FontWeight.bold, 
+        color: Theme.of(context).colorScheme.onPrimary,
+      ),
     );
   }
 
@@ -78,15 +89,16 @@ class _SignupPageState extends State<SignupPage> {
     return TextFormField(
       obscureText: isPassword,
       keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
-      validator: (value) => (value == null || value.isEmpty) ? 'Please enter your $hint' : null,
-      onSaved: (value) => onSaved(value!),
+      onSaved: (value) => onSaved(value ?? ''),
       decoration: InputDecoration(
-        errorStyle: const TextStyle(color: Colors.black),
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey[300], fontWeight: FontWeight.bold),
+        hintStyle: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.7), 
+          fontWeight: FontWeight.bold
+        ),
         border: const OutlineInputBorder(borderSide: BorderSide.none),
         filled: true,
-        fillColor: Colors.white.withOpacity(0.5),
+        fillColor: Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
       ),
     );
   }
@@ -97,10 +109,36 @@ class _SignupPageState extends State<SignupPage> {
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            _formKey.currentState!.save();
+          _formKey.currentState!.save();
+          
+          if (firstName == null || firstName!.isEmpty ||
+              lastName == null || lastName!.isEmpty ||
+              email == null || email!.isEmpty ||
+              password == null || password!.isEmpty) {
+            
+            // Close keyboard first
+            FocusScope.of(context).unfocus();
+            
+            // Store context reference before the async gap
+            final scaffoldMessenger = ScaffoldMessenger.of(context);
+            final theme = Theme.of(context);
+            
+            // Now we use the stored references in the callback
+            Future.delayed(const Duration(milliseconds: 100), () {
+              scaffoldMessenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Please fill in all fields',
+                    style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                  ),
+                  backgroundColor: theme.colorScheme.errorContainer,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            });
+          } else {
             log('$firstName $lastName $email $password');
-
+            
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => GenderAgePage(
@@ -113,6 +151,10 @@ class _SignupPageState extends State<SignupPage> {
             );
           }
         },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          foregroundColor: Theme.of(context).colorScheme.onSecondary,
+        ),
         child: const Text('Continue'),
       ),
     );
@@ -122,6 +164,7 @@ class _SignupPageState extends State<SignupPage> {
     return RichText(
       textScaleFactor: 1.1,
       text: TextSpan(
+        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
         children: [
           const TextSpan(text: "Do you have an account? "),
           TextSpan(

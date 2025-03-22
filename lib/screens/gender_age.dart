@@ -58,11 +58,11 @@ class _GenderAgePageState extends State<GenderAgePage> {
           });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        _buildSnackBar('Account Created Successfully!', Colors.green),
+        _buildSnackBar('Account Created Successfully!', Theme.of(context).colorScheme.primary),
       );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        _buildSnackBar(e.message ?? 'Something went wrong', Colors.red),
+        _buildSnackBar(e.message ?? 'Something went wrong', Theme.of(context).colorScheme.error),
       );
     }
     setState(() => _isLoading = false);
@@ -110,10 +110,10 @@ class _GenderAgePageState extends State<GenderAgePage> {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 26,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.onPrimary,
         ),
       ),
     );
@@ -144,16 +144,17 @@ class _GenderAgePageState extends State<GenderAgePage> {
         height: 140,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: isSelected ? Colors.blue.withOpacity(0.6) : Colors.white,
-          boxShadow:
-              isSelected
-                  ? [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 8,
-                    ),
-                  ]
-                  : [],
+          color: isSelected 
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.6) 
+              : Theme.of(context).colorScheme.surface,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Theme.of(context).shadowColor.withOpacity(0.2),
+                    blurRadius: 8,
+                  ),
+                ]
+              : [],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -161,12 +162,20 @@ class _GenderAgePageState extends State<GenderAgePage> {
             Icon(
               icon,
               size: 40,
-              color: isSelected ? Colors.white : Colors.black,
+              color: isSelected 
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.onSurface,
             ),
             const SizedBox(height: 10),
             Text(
               label,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18, 
+                fontWeight: FontWeight.bold,
+                color: isSelected 
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ],
         ),
@@ -180,10 +189,13 @@ class _GenderAgePageState extends State<GenderAgePage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6),
+            BoxShadow(
+              color: Theme.of(context).shadowColor.withOpacity(0.15), 
+              blurRadius: 6
+            ),
           ],
         ),
         child: Row(
@@ -191,9 +203,17 @@ class _GenderAgePageState extends State<GenderAgePage> {
           children: [
             Text(
               _selectedAge,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 16, 
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
-            Icon(Icons.arrow_drop_down, size: 28),
+            Icon(
+              Icons.arrow_drop_down, 
+              size: 28,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ],
         ),
       ),
@@ -206,52 +226,52 @@ class _GenderAgePageState extends State<GenderAgePage> {
         width: double.infinity,
         height: 55,
         child: ElevatedButton(
-          onPressed:
-              _isLoading
-                  ? null
-                  : () {
-                    if (_selectedAge == 'Select Age Range') {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        _buildSnackBar('Please select your age!', Colors.red),
-                      );
-                      return;
-                    }
-                    if (_selectedGender == 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        _buildSnackBar(
-                          'Please select your gender!',
-                          Colors.red,
-                        ),
-                      );
-                      return;
-                    }
-                    final user = UserCreate(
-                      firstName: widget.firstName,
-                      lastName: widget.lastName,
-                      email: widget.email,
-                      password: widget.password,
-                      gender: _selectedGender,
-                      age: _selectedAge,
+          onPressed: _isLoading
+              ? null
+              : () {
+                  if (_selectedAge == 'Select Age Range') {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      _buildSnackBar('Please select your age!', Theme.of(context).colorScheme.error),
                     );
-                    _createAccount(user);
-                  },
+                    return;
+                  }
+                  if (_selectedGender == 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      _buildSnackBar(
+                        'Please select your gender!',
+                        Theme.of(context).colorScheme.error,
+                      ),
+                    );
+                    return;
+                  }
+                  final user = UserCreate(
+                    firstName: widget.firstName,
+                    lastName: widget.lastName,
+                    email: widget.email,
+                    password: widget.password,
+                    gender: _selectedGender,
+                    age: _selectedAge,
+                  );
+                  _createAccount(user);
+                },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child:
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : const Text(
-                    'Finish',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+          child: _isLoading
+              ? CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                )
+              : Text(
+                  'Finish',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSecondary,
                   ),
+                ),
         ),
       ),
     );
@@ -259,31 +279,39 @@ class _GenderAgePageState extends State<GenderAgePage> {
 
   Widget _buildAgeSelectionSheet() {
     return FutureBuilder(
-      future:
-          FirebaseFirestore.instance.collection('ages').orderBy('value').get(),
+      future: FirebaseFirestore.instance.collection('ages').orderBy('value').get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting)
-          return Center(child: CircularProgressIndicator());
+          return Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          );
         if (snapshot.hasError)
-          return const Center(child: Text('An error occurred!'));
+          return Center(
+            child: Text(
+              'An error occurred!',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          );
         final ageDocs = snapshot.data!.docs;
         return ListView(
-          children:
-              ageDocs.map((doc) {
-                return ListTile(
-                  title: Text(
-                    doc['value'],
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onTap: () {
-                    setState(() => _selectedAge = doc['value']);
-                    Navigator.pop(context);
-                  },
-                );
-              }).toList(),
+          children: ageDocs.map((doc) {
+            return ListTile(
+              title: Text(
+                doc['value'],
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              onTap: () {
+                setState(() => _selectedAge = doc['value']);
+                Navigator.pop(context);
+              },
+            );
+          }).toList(),
         );
       },
     );

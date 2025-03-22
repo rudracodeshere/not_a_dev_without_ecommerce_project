@@ -7,6 +7,9 @@ class SigninPage extends StatelessWidget {
   const SigninPage({super.key});
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isSmallScreen = size.width < 600;
+    
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -17,7 +20,6 @@ class SigninPage extends StatelessWidget {
           backgroundColor: Colors.transparent,
         ),
         body: Container(
-          padding: const EdgeInsets.symmetric(vertical: 110, horizontal: 16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -28,19 +30,32 @@ class SigninPage extends StatelessWidget {
               end: Alignment.bottomCenter,
             ),
           ),
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _text(),
-                SizedBox(height: 20),
-                _emailBox(context),
-                SizedBox(height: 20),
-                _button(context),
-                SizedBox(height: 20),
-                _noAccount(context),
-              ],
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: size.width * 0.05,
+                  vertical: size.height * 0.03,
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: size.height - MediaQuery.of(context).padding.vertical,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: size.height * 0.05),
+                      _text(),
+                      SizedBox(height: size.height * 0.04),
+                      _emailBox(context),
+                      SizedBox(height: size.height * 0.03),
+                      _button(context, isSmallScreen),
+                      SizedBox(height: size.height * 0.03),
+                      Center(child: _noAccount(context)),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -77,17 +92,27 @@ class SigninPage extends StatelessWidget {
     );
   }
 
-  Widget _button(BuildContext context) {
+  Widget _button(BuildContext context, bool isSmallScreen) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: isSmallScreen ? 50 : 60,
       child: ElevatedButton(
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => EnterPasswordPage()),
           );
         },
-        child: Text('Continue'),
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          'Continue',
+          style: TextStyle(
+            fontSize: isSmallScreen ? 16 : 18,
+          ),
+        ),
       ),
     );
   }
