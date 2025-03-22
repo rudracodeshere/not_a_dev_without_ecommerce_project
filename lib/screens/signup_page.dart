@@ -1,46 +1,32 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:e_commerce_project/models/user_create.dart';
+import 'dart:developer';
 import 'package:e_commerce_project/screens/gender_age.dart';
 import 'package:e_commerce_project/widgets/custom_appbar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-class SignupPage extends StatelessWidget {
+class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
-  void _createAccount(UserCreate user, BuildContext context) async {
-    try {
-      final data = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: user.email,
-        password: user.password,
-      );
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(data.user!.uid)
-          .set({
-            'firstName': user.firstName,
-            'lastName': user.lastName,
-            'email': user.email,
-            'gender': user.gender,
-            'age': user.age,
-          });
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.message!)));
-    }
-  }
+
+  @override
+  State<SignupPage> createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  final _formKey = GlobalKey<FormState>();
+  String? firstName;
+  String? lastName;
+  String? email;
+  String? password;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: CustomAppBar(),
         body: Container(
+          height: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 110, horizontal: 16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -54,23 +40,26 @@ class SignupPage extends StatelessWidget {
           ),
           child: SizedBox(
             width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _text(),
-                SizedBox(height: 20),
-                _firstNameBox(context),
-                SizedBox(height: 20),
-                _lastNameBox(context),
-                SizedBox(height: 20),
-                _emailBox(context),
-                SizedBox(height: 20),
-                _passwordBox(context),
-                SizedBox(height: 20),
-                _button(context),
-                SizedBox(height: 20),
-                _noAccount(context),
-              ],
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTitle(),
+                  const SizedBox(height: 20),
+                  _buildTextField('First Name', (value) => firstName = value),
+                  const SizedBox(height: 20),
+                  _buildTextField('Last Name', (value) => lastName = value),
+                  const SizedBox(height: 20),
+                  _buildTextField('Email Address', (value) => email = value, isEmail: true),
+                  const SizedBox(height: 20),
+                  _buildTextField('Password', (value) => password = value, isPassword: true),
+                  const SizedBox(height: 20),
+                  _buildContinueButton(context),
+                  const SizedBox(height: 20),
+                  _buildSignInText(context),
+                ],
+              ),
             ),
           ),
         ),
@@ -78,118 +67,67 @@ class SignupPage extends StatelessWidget {
     );
   }
 
-  Widget _text() {
-    return Text(
+  Widget _buildTitle() {
+    return const Text(
       'Create Account',
-      style: TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
+      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
     );
   }
 
-  Widget _emailBox(BuildContext context) {
-    return TextField(
-      //autofocus: true,
+  Widget _buildTextField(String hint, Function(String) onSaved, {bool isEmail = false, bool isPassword = false}) {
+    return TextFormField(
+      obscureText: isPassword,
+      keyboardType: isEmail ? TextInputType.emailAddress : TextInputType.text,
+      validator: (value) => (value == null || value.isEmpty) ? 'Please enter your $hint' : null,
+      onSaved: (value) => onSaved(value!),
       decoration: InputDecoration(
-        hintText: 'Email Address',
-        hintStyle: TextStyle(
-          color: Colors.grey[300],
-          fontWeight: FontWeight.bold,
-        ),
-        border: OutlineInputBorder(borderSide: BorderSide.none),
+        errorStyle: const TextStyle(color: Colors.black),
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.grey[300], fontWeight: FontWeight.bold),
+        border: const OutlineInputBorder(borderSide: BorderSide.none),
         filled: true,
-        fillColor: Theme.of(
-          context,
-        ).colorScheme.secondaryContainer.withOpacity(0.5),
+        fillColor: Colors.white.withOpacity(0.5),
       ),
     );
   }
 
-  Widget _firstNameBox(BuildContext context) {
-    return TextField(
-      //autofocus: true,
-      decoration: InputDecoration(
-        hintText: 'First Name',
-        hintStyle: TextStyle(
-          color: Colors.grey[300],
-          fontWeight: FontWeight.bold,
-        ),
-        border: OutlineInputBorder(borderSide: BorderSide.none),
-        filled: true,
-        fillColor: Theme.of(
-          context,
-        ).colorScheme.secondaryContainer.withOpacity(0.5),
-      ),
-    );
-  }
-
-  Widget _lastNameBox(BuildContext context) {
-    return TextField(
-      //autofocus: true,
-      decoration: InputDecoration(
-        hintText: 'Last Name',
-        hintStyle: TextStyle(
-          color: Colors.grey[300],
-          fontWeight: FontWeight.bold,
-        ),
-        border: OutlineInputBorder(borderSide: BorderSide.none),
-        filled: true,
-        fillColor: Theme.of(
-          context,
-        ).colorScheme.secondaryContainer.withOpacity(0.5),
-      ),
-    );
-  }
-
-  Widget _passwordBox(BuildContext context) {
-    return TextField(
-      //autofocus: true,
-      decoration: InputDecoration(
-        hintText: 'Password',
-        hintStyle: TextStyle(
-          color: Colors.grey[300],
-          fontWeight: FontWeight.bold,
-        ),
-        border: OutlineInputBorder(borderSide: BorderSide.none),
-        filled: true,
-        fillColor: Theme.of(
-          context,
-        ).colorScheme.secondaryContainer.withOpacity(0.5),
-      ),
-    );
-  }
-
-  Widget _button(BuildContext context) {
+  Widget _buildContinueButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (context) => GenderAgePage()));
+          if (_formKey.currentState!.validate()) {
+            _formKey.currentState!.save();
+            log('$firstName $lastName $email $password');
+
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => GenderAgePage(
+                  firstName: firstName!,
+                  lastName: lastName!,
+                  email: email!,
+                  password: password!,
+                ),
+              ),
+            );
+          }
         },
-        child: Text('Continue'),
+        child: const Text('Continue'),
       ),
     );
   }
 
-  Widget _noAccount(BuildContext context) {
+  Widget _buildSignInText(BuildContext context) {
     return RichText(
       textScaleFactor: 1.1,
       text: TextSpan(
         children: [
-          TextSpan(text: "Do you have an account? "),
+          const TextSpan(text: "Do you have an account? "),
           TextSpan(
-            recognizer:
-                TapGestureRecognizer()
-                  ..onTap = () {
-                    Navigator.of(context).pop();
-                  },
+            recognizer: TapGestureRecognizer()..onTap = () => Navigator.of(context).pop(),
             text: 'Sign In!',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ],
       ),
