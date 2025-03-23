@@ -1,19 +1,17 @@
-import 'package:e_commerce_project/providers/splash_cubit.dart';
-import 'package:e_commerce_project/screens/splash_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'firebase_options.dart';
+import 'screens/splash_screen.dart';
 
-final kColorSchemeLight = ColorScheme.fromSeed(
+final lightColorScheme = ColorScheme.fromSeed(
   seedColor: const Color.fromARGB(255, 231, 162, 34),
 );
 
-void main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MainApp());
 }
 
@@ -22,13 +20,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SplashCubit()..appStarted(),
-      child: MaterialApp(
-        theme: ThemeData.from(colorScheme: kColorSchemeLight),
-        themeMode: ThemeMode.system,
-        home: SplashScreen(),
-      ),
+    return MaterialApp(
+      title: 'E-Commerce Project',
+      theme: ThemeData.from(colorScheme: lightColorScheme),
+      themeMode: ThemeMode.system,
+      debugShowCheckedModeBanner: false,
+      home: const SplashScreen(),
     );
   }
 }
