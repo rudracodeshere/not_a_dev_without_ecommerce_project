@@ -283,6 +283,7 @@ class _GenderAgePageState extends State<GenderAgePage> {
         extendBodyBehindAppBar: true,
         appBar: AppBar(backgroundColor: Colors.transparent),
         body: Container(
+          height: size.height,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [

@@ -1,8 +1,21 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/custom_appbar.dart';
 
-class ForgotPasswordPage extends StatelessWidget {
+class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
+
+  @override
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+}
+
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final _emailController = TextEditingController();
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +27,7 @@ class ForgotPasswordPage extends StatelessWidget {
         extendBodyBehindAppBar: true,
         appBar: const CustomAppBar(),
         body: Container(
-          height: size.height, // Ensure container fills the screen
+          height: size.height,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -50,6 +63,8 @@ class ForgotPasswordPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 40),
                     TextField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'Enter Email',
                         hintStyle: TextStyle(
@@ -58,10 +73,9 @@ class ForgotPasswordPage extends StatelessWidget {
                         ),
                         border: InputBorder.none,
                         filled: true,
-                        fillColor: Theme.of(context)
-                            .colorScheme
-                            .secondaryContainer
-                            .withOpacity(0.5),
+                        fillColor: Theme.of(
+                          context,
+                        ).colorScheme.secondaryContainer.withOpacity(0.5),
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -69,8 +83,28 @@ class ForgotPasswordPage extends StatelessWidget {
                       width: double.infinity,
                       height: isSmallScreen ? 50 : 60,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Implement reset password logic
+                        onPressed: () async {
+                          try {
+                            await FirebaseAuth.instance.sendPasswordResetEmail(
+                              email: _emailController.text.trim(),
+                            );
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Password reset email sent successfully',
+                                  ),
+                                ),
+                              );
+                              Navigator.of(context).pop();
+                            }
+                          } on FirebaseAuthException catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e.message!)),
+                              );
+                            }
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -79,9 +113,7 @@ class ForgotPasswordPage extends StatelessWidget {
                         ),
                         child: Text(
                           'Reset Password',
-                          style: TextStyle(
-                            fontSize: isSmallScreen ? 16 : 18,
-                          ),
+                          style: TextStyle(fontSize: isSmallScreen ? 16 : 18),
                         ),
                       ),
                     ),

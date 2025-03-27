@@ -1,3 +1,4 @@
+import 'package:e_commerce_project/screens/home/default.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,10 @@ class _EnterPasswordPageState extends State<EnterPasswordPage> {
         email: widget.email,
         password: _passwordController.text.trim(),
       );
-      // Successful sign in; the auth state listener elsewhere will update the UI.
+      
+      if(FirebaseAuth.instance.currentUser != null) {
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>DefaultScreen()), (route) => false);
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Sign in failed: $e')),

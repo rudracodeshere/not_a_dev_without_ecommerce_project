@@ -9,9 +9,7 @@ final lightColorScheme = ColorScheme.fromSeed(
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MainApp());
 }
 
@@ -23,7 +21,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'E-Commerce Project',
       theme: ThemeData.from(colorScheme: lightColorScheme),
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
     );
