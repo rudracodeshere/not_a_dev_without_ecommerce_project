@@ -66,38 +66,72 @@ class _HomePageState extends ConsumerState<HomePage> {
     return categoryAsyncValue.when(
       data:
           (categories) => SizedBox(
-            height: 100,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+            height: 200,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundImage:
-                            category.image != null
-                                ? NetworkImage(category.image!)
-                                : null,
-                        child:
-                            category.image == null ? Icon(Icons.category) : null,
+                      const Text(
+                        'Categories',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                        category.title ?? 'No Title',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      const Text(
+                        'See All',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                );
-              },
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10.0,
+                          vertical: 6,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            category.image != null
+                            ? Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: NetworkImage(
+                                      'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${category.title}.jpg?alt=media',
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              )
+                            : const CircleAvatar(
+                                radius: 30,
+                                child: Icon(Icons.category),
+                              ),
+                            const SizedBox(height: 8),
+                            Text(
+                              category.title ?? 'No Title',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
       loading: () => Center(child: CircularProgressIndicator()),
