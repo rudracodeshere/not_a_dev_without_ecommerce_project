@@ -16,45 +16,62 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  late final user;
-  bool headerLoader = false;
-  void _loadUserData() async {
+  User? user;
+  bool _isLoading = true;
+  List<Product> _topProds = [];
+  List<dynamic> _categories = [];
+
+  void _loadAllData() async {
     final userId = auth.FirebaseAuth.instance.currentUser!.uid;
-    FirebaseFirestore.instance.collection('users').doc(userId).get().then((
-      value,
-    ) {
-      final userData = value.data();
-      user = User.fromJson(userData!);
-      setState(() {});
-    });
+    
+    try {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        user = User.fromJson(userDoc.data()!);
+      }
+
+      final categoryData = await ref.read(categoryProvider.future);
+      _categories = categoryData;
+
+  
+      _topProds = ref.read(topSellingProvider);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+    } catch (e) {
+      print("Error loading data: $e");
+      setState(() {
+        _isLoading = false; 
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadAllData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.6),
-      body:
-          headerLoader
-              ? Column(
-                children: [
-                  HomeHeader(),
-                  _searchBar(),
-                  _categoryRow(),
-                  _topSellers(),
-                ],
-              )
-              : Center(child: CircularProgressIndicator()),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                HomeHeader(user: user),
+                _searchBar(),
+                _categoryRow(),
+                _topSellers(),
+              ],
+            ),
     );
   }
 
   Widget _topSellers() {
-    List<Product> _topProds = ref.watch(topSellingProvider);
     return Container(
       height: 250,
       width: double.infinity,
@@ -108,83 +125,77 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _categoryRow() {
-    final categoryAsyncValue = ref.watch(categoryProvider);
-    return categoryAsyncValue.when(
-      data:
-          (categories) => SizedBox(
-            height: 180,
-            child: Column(
+    return SizedBox(
+      height: 180,
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Categories',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24,
-                        ),
-                      ),
-                      const Text(
-                        'See All',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                const Text(
+                  'Categories',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
                   ),
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      final category = categories[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10.0,
-                          vertical: 6,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            category.image != null
-                                ? Container(
-                                  width: 60,
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                        'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${category.title}.jpg?alt=media',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                )
-                                : const CircleAvatar(
-                                  radius: 30,
-                                  child: Icon(Icons.category),
-                                ),
-                            const SizedBox(height: 8),
-                            Text(
-                              category.title ?? 'No Title',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                const Text(
+                  'See All',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
-      loading: () => Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('Error: $err')),
+          Expanded(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _categories.length,
+              itemBuilder: (context, index) {
+                final category = _categories[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 6,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      category.image != null
+                          ? Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                    'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${category.title}.jpg?alt=media',
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            )
+                          : const CircleAvatar(
+                              radius: 30,
+                              child: Icon(Icons.category),
+                            ),
+                      const SizedBox(height: 8),
+                      Text(
+                        category.title ?? 'No Title',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
