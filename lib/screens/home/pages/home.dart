@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce_project/models/product.dart';
 import 'package:e_commerce_project/providers/category_provider.dart';
+import 'package:e_commerce_project/providers/top_selling_product_provider.dart';
 import 'package:e_commerce_project/screens/home/pages/widgets/home_header.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
@@ -37,7 +39,51 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.6),
-      body: Column(children: [HomeHeader(), _searchBar(), _categoryRow()]),
+      body:
+          headerLoader
+              ? Column(
+                children: [
+                  HomeHeader(),
+                  _searchBar(),
+                  _categoryRow(),
+                  _topSellers(),
+                ],
+              )
+              : Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _topSellers() {
+    List<Product> _topProds = ref.watch(topSellingProvider);
+    return Container(
+      height: 250,
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Top Sellers',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _topProds.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) => _productCard(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _productCard() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+      height: 100,
+      width: 150,
+      decoration: BoxDecoration(color: Colors.white),
     );
   }
 
@@ -66,7 +112,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return categoryAsyncValue.when(
       data:
           (categories) => SizedBox(
-            height: 200,
+            height: 180,
             child: Column(
               children: [
                 Padding(
@@ -76,7 +122,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     children: [
                       const Text(
                         'Categories',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                        ),
                       ),
                       const Text(
                         'See All',
@@ -100,23 +149,23 @@ class _HomePageState extends ConsumerState<HomePage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             category.image != null
-                            ? Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                      'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${category.title}.jpg?alt=media',
+                                ? Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      image: NetworkImage(
+                                        'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${category.title}.jpg?alt=media',
+                                      ),
+                                      fit: BoxFit.cover,
                                     ),
-                                    fit: BoxFit.cover,
                                   ),
+                                )
+                                : const CircleAvatar(
+                                  radius: 30,
+                                  child: Icon(Icons.category),
                                 ),
-                              )
-                            : const CircleAvatar(
-                                radius: 30,
-                                child: Icon(Icons.category),
-                              ),
                             const SizedBox(height: 8),
                             Text(
                               category.title ?? 'No Title',
