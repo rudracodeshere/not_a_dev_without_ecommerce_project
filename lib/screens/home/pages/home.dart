@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce_project/models/product.dart';
 import 'package:e_commerce_project/providers/category_provider.dart';
 import 'package:e_commerce_project/providers/top_selling_product_provider.dart';
+import 'package:e_commerce_project/screens/home/pages/categories_screen.dart';
+import 'package:e_commerce_project/screens/home/pages/product_grid.dart';
+import 'package:e_commerce_project/screens/home/pages/search_page.dart';
 import 'package:e_commerce_project/screens/home/pages/widgets/home_header.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
@@ -20,8 +23,15 @@ class _HomePageState extends ConsumerState<HomePage> {
   bool _isLoading = true;
   List<Product> _topProds = [];
   List<dynamic> _categories = [];
+  List<Product> newProds = [];
 
-  void _loadAllData() async {
+  @override
+  void initState() {
+    super.initState();
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
     final userId = auth.FirebaseAuth.instance.currentUser!.uid;
 
     try {
@@ -30,197 +40,108 @@ class _HomePageState extends ConsumerState<HomePage> {
               .collection('users')
               .doc(userId)
               .get();
+
       if (userDoc.exists) {
         user = User.fromJson(userDoc.data()!);
       }
 
-      final categoryData = await ref.read(categoryProvider.future);
-      _categories = categoryData;
-
-      _topProds = ref.read(topSellingProvider);
-
-      setState(() {
-        _isLoading = false;
-      });
+      _categories = await ref.read(categoryProvider.future);
+      _topProds = ref.read(topSellingProvider).reversed.toList();
+      newProds = ref.read(newlyCreatedProvider);
     } catch (e) {
-      print("Error loading data: $e");
-      setState(() {
-        _isLoading = false;
-      });
+      debugPrint("Error loading data: $e");
     }
-  }
 
-  @override
-  void initState() {
-    super.initState();
-    _loadAllData();
+    setState(() => _isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.6),
+      backgroundColor: colorScheme.primary.withOpacity(0.1),
       body:
           _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  HomeHeader(user: user),
-                  _searchBar(),
-                  _categoryRow(),
-                  _topSellers(),
-                ],
-              ),
-    );
-  }
-
-  Widget _topSellers() {
-    return Container(
-      height: 210,
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Top Sellers',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _topProds.length,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) => _productCard(_topProds[index]),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _productCard(Product product) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-      padding: EdgeInsets.all(8),
-      width: 150,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 4, spreadRadius: 2),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Static Image for now
-          Container(
-            height: 100,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-              image: DecorationImage(
-                image: NetworkImage(
-                  'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2FBags.jpg?alt=media',
-                ),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          // Product Info
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Product Title
-                Text(
-                  product.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+              ? Center(
+                child: CircularProgressIndicator(color: colorScheme.primary),
+              )
+              : SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      HomeHeader(user: user),
+                      _searchBar(context),
+                      _categoryRow(context),
+                      _topSellers(context),
+                      _newProducts(context),
+                    ],
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                // Prices
-                Row(
-                  children: [
-                    if (product.discountedPrice != null) ...[
-                      Text(
-                        '\$${product.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.red,
-                          decoration: TextDecoration.lineThrough,
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        '\$${product.discountedPrice!.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ] else
-                      Text(
-                        '\$${product.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+              ),
     );
   }
 
-  Widget _searchBar() {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  Widget _searchBar(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: TextField(
+        readOnly: true,
+        onTap: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (context) => SearchPage()));
+        },
         decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search, color: Colors.black),
-          hintText: 'search',
+          prefixIcon: Icon(Icons.search, color: colorScheme.onBackground),
+          hintText: 'Search',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(width: 1, color: Colors.black),
+            borderSide: BorderSide(color: colorScheme.outline),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(width: 1, color: Colors.black),
-          ),
+
+         
         ),
       ),
     );
   }
 
-  Widget _categoryRow() {
+  Widget _categoryRow(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isPortrait = MediaQuery.of(context).size.width < 600;
     return SizedBox(
-      height: 180,
+      height: isPortrait ? 150 : 200,
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Categories',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onBackground,
+                  ),
                 ),
-                const Text(
-                  'See All',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => CategoriesScreen()),
+                    );
+                  },
+                  child: Text(
+                    'See All',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.secondary,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -232,37 +153,55 @@ class _HomePageState extends ConsumerState<HomePage> {
               itemBuilder: (context, index) {
                 final category = _categories[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10.0,
-                    vertical: 6,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       category.image != null
-                          ? Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image: NetworkImage(
-                                  'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${category.title}.jpg?alt=media',
+                          ? Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              customBorder: CircleBorder(),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => ProductGridScreen(
+                                          title: category.title,
+                                        ),
+                                  ),
+                                );
+                              },
+                              child: Ink(
+                                width: isPortrait ? 60 : 100,
+                                height: isPortrait ? 60 : 100,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    image: NetworkImage(
+                                      'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${category.title}.jpg?alt=media',
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
-                                fit: BoxFit.cover,
                               ),
                             ),
                           )
-                          : const CircleAvatar(
+                          : CircleAvatar(
                             radius: 30,
-                            child: Icon(Icons.category),
+                            backgroundColor: colorScheme.primaryContainer,
+                            child: Icon(
+                              Icons.category,
+                              color: colorScheme.onPrimaryContainer,
+                            ),
                           ),
                       const SizedBox(height: 8),
                       Text(
                         category.title ?? 'No Title',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
+                          color: colorScheme.onBackground,
                         ),
                       ),
                     ],
@@ -270,6 +209,151 @@ class _HomePageState extends ConsumerState<HomePage> {
                 );
               },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _topSellers(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      height: 280,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Top Sellers',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onBackground,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _topProds.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder:
+                  (context, index) => _productCard(context, _topProds[index]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _newProducts(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'New In',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              color: colorScheme.onBackground,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 240,
+            child: ListView.builder(
+              itemCount: newProds.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder:
+                  (context, index) => _productCard(context, newProds[index]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _productCard(BuildContext context, Product product) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      padding: const EdgeInsets.all(8),
+      width: 160,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.1),
+            blurRadius: 4,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 150,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+              image: DecorationImage(
+                image: NetworkImage(
+                  'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${product.categoryId}.jpg?alt=media',
+                ),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            product.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              if (product.discountedPrice != null) ...[
+                Text(
+                  '\$${product.price.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    decoration: TextDecoration.lineThrough,
+                    color: colorScheme.error,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Text(
+                  '\$${product.discountedPrice!.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                  ),
+                ),
+              ] else
+                Text(
+                  '\$${product.price.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+            ],
           ),
         ],
       ),
