@@ -1,4 +1,5 @@
 import 'package:e_commerce_project/models/product.dart';
+import 'package:e_commerce_project/models/product_color.dart';
 import 'package:flutter/material.dart';
 
 class ProductPage extends StatefulWidget {
@@ -11,6 +12,95 @@ class ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   int quantity = 1;
+  int colorIndex = 0;
+  late List<ProductColor> productColors;
+
+  @override
+  void initState() {
+    super.initState();
+    productColors = widget.product.colors;
+  }
+
+  Future<void> _showColorSheet() {
+    return showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "SELECT COLOR",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: productColors.length,
+                      itemBuilder: (context, index) {
+                        final productColor = Color(
+                          int.parse('0xFF${productColors[index].hexcode.substring(1)}'),
+                        );
+                        final isSelected = colorIndex == index;
+
+                        return GestureDetector(
+                          onTap: () {
+                            setModalState(() => colorIndex = index); // Update modal state
+                            setState(() {}); // Update parent state
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+                                  : Theme.of(context).colorScheme.surfaceVariant,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  productColors[index].title,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                CircleAvatar(
+                                  radius: 15,
+                                  backgroundColor: productColor,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,37 +178,38 @@ class _ProductPageState extends State<ProductPage> {
   Widget _buildProductPrice() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: widget.product.discountedPrice == null
-          ? Text(
-              '\$${widget.product.price}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Theme.of(context).colorScheme.primary,
+      child:
+          widget.product.discountedPrice == null
+              ? Text(
+                '\$${widget.product.price}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+              : Row(
+                children: [
+                  Text(
+                    '\$${widget.product.price}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.grey,
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '\$${widget.product.discountedPrice}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                ],
               ),
-            )
-          : Row(
-              children: [
-                Text(
-                  '\$${widget.product.price}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.grey,
-                    decoration: TextDecoration.lineThrough,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '\$${widget.product.discountedPrice}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                ),
-              ],
-            ),
     );
   }
 
@@ -144,7 +235,8 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   Widget _buildColorSelector() {
-    final productColor = '0xFF${widget.product.colors[0].hexcode.substring(1)}';
+    final productColor =
+        '0xFF${widget.product.colors[colorIndex].hexcode.substring(1)}';
     return _buildOptionBox(
       title: 'Color',
       child: Row(
@@ -206,27 +298,30 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   Widget _buildOptionBox({required String title, required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      height: 80,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.primary,
+    return GestureDetector(
+      onTap: () => _showColorSheet(),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        height: 80,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceVariant,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
-          ),
-          child,
-        ],
+            child,
+          ],
+        ),
       ),
     );
   }
