@@ -13,90 +13,150 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   int quantity = 1;
   int colorIndex = 0;
+  int sizeIndex = 0;
   late List<ProductColor> productColors;
-
+  late List<String> sizes;
   @override
   void initState() {
     super.initState();
     productColors = widget.product.colors;
+    sizes = widget.product.sizes;
+  }
+
+  Future<void> _showSizeSheet() {
+    return showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "SELECT SIZE",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: sizes.length,
+                  itemBuilder: (context, index) => Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: sizeIndex == index
+                          ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+                          : Theme.of(context).colorScheme.surfaceVariant,
+                    ),
+                    child: ListTile(
+                      onTap: () {
+                        setState(() {
+                          sizeIndex = index;
+                          Navigator.of(context).pop();
+                        });
+                      },
+                      title: Text(
+                        sizes[index],
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _showColorSheet() {
     return showModalBottomSheet(
       context: context,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "SELECT COLOR",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: productColors.length,
-                      itemBuilder: (context, index) {
-                        final productColor = Color(
-                          int.parse('0xFF${productColors[index].hexcode.substring(1)}'),
-                        );
-                        final isSelected = colorIndex == index;
-
-                        return GestureDetector(
-                          onTap: () {
-                            setModalState(() => colorIndex = index); // Update modal state
-                            setState(() {}); // Update parent state
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: isSelected
-                                  ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
-                                  : Theme.of(context).colorScheme.surfaceVariant,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  productColors[index].title,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                CircleAvatar(
-                                  radius: 15,
-                                  backgroundColor: productColor,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                  const Text(
+                    "SELECT COLOR",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
-            );
-          },
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: productColors.length,
+                  itemBuilder: (context, index) {
+                    final productColor = Color(
+                      int.parse(
+                        '0xFF${productColors[index].hexcode.substring(1)}',
+                      ),
+                    );
+                    final isSelected = colorIndex == index;
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+                            : Theme.of(context).colorScheme.surfaceVariant,
+                      ),
+                      child: ListTile(
+                        onTap: () {
+                          setState(() {
+                            colorIndex = index;
+                          });
+                          Navigator.of(context).pop();
+                        },
+                        title: Text(
+                          productColors[index].title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        trailing: CircleAvatar(
+                          radius: 15,
+                          backgroundColor: productColor,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -216,10 +276,11 @@ class _ProductPageState extends State<ProductPage> {
   Widget _buildSizeSelector() {
     return _buildOptionBox(
       title: 'Size',
+      option: 'size',
       child: Row(
         children: [
           Text(
-            widget.product.sizes[0],
+            widget.product.sizes[sizeIndex],
             style: TextStyle(
               fontSize: 16,
               color: Theme.of(context).colorScheme.onSurface,
@@ -239,6 +300,7 @@ class _ProductPageState extends State<ProductPage> {
         '0xFF${widget.product.colors[colorIndex].hexcode.substring(1)}';
     return _buildOptionBox(
       title: 'Color',
+      option: 'color',
       child: Row(
         children: [
           CircleAvatar(
@@ -258,6 +320,7 @@ class _ProductPageState extends State<ProductPage> {
   Widget _buildQuantitySelector() {
     return _buildOptionBox(
       title: 'Quantity',
+      option: 'quantity',
       child: Row(
         children: [
           _buildQuantityButton(Icons.remove, () {
@@ -297,9 +360,22 @@ class _ProductPageState extends State<ProductPage> {
     );
   }
 
-  Widget _buildOptionBox({required String title, required Widget child}) {
+  Widget _buildOptionBox({
+    required String title,
+    required Widget child,
+    required String option,
+  }) {
     return GestureDetector(
-      onTap: () => _showColorSheet(),
+      onTap: () {
+        if (option == 'color') {
+          _showColorSheet();
+        }
+        if (option == 'size') {
+          _showSizeSheet();
+        } else {
+          return;
+        }
+      },
       child: Container(
         padding: const EdgeInsets.all(16),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
