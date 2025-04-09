@@ -4,6 +4,7 @@ import 'package:e_commerce_project/providers/category_provider.dart';
 import 'package:e_commerce_project/providers/top_selling_product_provider.dart';
 import 'package:e_commerce_project/screens/home/pages/categories_screen.dart';
 import 'package:e_commerce_project/screens/home/pages/product_grid.dart';
+import 'package:e_commerce_project/screens/home/pages/product_page.dart';
 import 'package:e_commerce_project/screens/home/pages/search_page.dart';
 import 'package:e_commerce_project/screens/home/pages/widgets/home_header.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
@@ -102,8 +103,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(color: colorScheme.outline),
           ),
-
-         
         ),
       ),
     );
@@ -281,81 +280,89 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _productCard(BuildContext context, Product product) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-      padding: const EdgeInsets.all(8),
-      width: 160,
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.1),
-            blurRadius: 4,
-            spreadRadius: 2,
+    return GestureDetector(
+      onTap:
+          () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ProductPage(product: product),
+            ),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 150,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-              image: DecorationImage(
-                image: NetworkImage(
-                  'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${product.categoryId}.jpg?alt=media',
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        padding: const EdgeInsets.all(8),
+        width: 160,
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.shadow.withOpacity(0.1),
+              blurRadius: 4,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                image: DecorationImage(
+                  image: NetworkImage(
+                    'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${product.categoryId}.jpg?alt=media',
+                  ),
+                  fit: BoxFit.cover,
                 ),
-                fit: BoxFit.cover,
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            product.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: colorScheme.onSurface,
+            const SizedBox(height: 8),
+            Text(
+              product.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: colorScheme.onSurface,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              if (product.discountedPrice != null) ...[
-                Text(
-                  '\$${product.price.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    decoration: TextDecoration.lineThrough,
-                    color: colorScheme.error,
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                if (product.discountedPrice != null) ...[
+                  Text(
+                    '\$${product.price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      decoration: TextDecoration.lineThrough,
+                      color: colorScheme.error,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  '\$${product.discountedPrice!.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
+                  const SizedBox(width: 5),
+                  Text(
+                    '\$${product.discountedPrice!.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.primary,
+                    ),
                   ),
-                ),
-              ] else
-                Text(
-                  '\$${product.price.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
+                ] else
+                  Text(
+                    '\$${product.price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
-                ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

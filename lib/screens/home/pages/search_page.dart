@@ -1,5 +1,6 @@
 import 'package:e_commerce_project/models/product.dart';
 import 'package:e_commerce_project/providers/search_provider.dart';
+import 'package:e_commerce_project/screens/home/pages/product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -84,7 +85,11 @@ class SearchPage extends ConsumerWidget {
     return InkWell(
       splashColor: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
       borderRadius: BorderRadius.circular(10),
-      onTap: () {},
+      onTap:  () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => ProductPage(product: product),
+            ),
+          ),
       child: Ink(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
