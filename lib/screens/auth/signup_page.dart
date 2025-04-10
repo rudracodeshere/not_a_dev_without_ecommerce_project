@@ -156,7 +156,7 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isSmallScreen = size.width < 600;
-    final _keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -184,7 +184,7 @@ class _SignupPageState extends State<SignupPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (!_keyboardVisible) _topHeading(),
+                    if (!keyboardVisible) _topHeading(),
                     _buildTextField(
                         controller: _firstNameController, hint: 'First Name'),
                     const SizedBox(height: 20),

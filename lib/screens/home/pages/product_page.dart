@@ -1,16 +1,19 @@
 import 'package:e_commerce_project/models/product.dart';
 import 'package:e_commerce_project/models/product_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:e_commerce_project/providers/cart_provider.dart';
+import 'package:e_commerce_project/models/add_to_cart_model.dart';
 
-class ProductPage extends StatefulWidget {
+class ProductPage extends ConsumerStatefulWidget {
   final Product product;
   const ProductPage({super.key, required this.product});
 
   @override
-  State<ProductPage> createState() => _ProductPageState();
+  ConsumerState<ProductPage> createState() => _ProductPageState();
 }
 
-class _ProductPageState extends State<ProductPage> {
+class _ProductPageState extends ConsumerState<ProductPage> {
   int quantity = 1;
   int colorIndex = 0;
   int sizeIndex = 0;
@@ -59,7 +62,7 @@ class _ProductPageState extends State<ProductPage> {
                       borderRadius: BorderRadius.circular(20),
                       color: sizeIndex == index
                           ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
-                          : Theme.of(context).colorScheme.surfaceVariant,
+                          : Theme.of(context).colorScheme.surfaceContainerHighest,
                     ),
                     child: ListTile(
                       onTap: () {
@@ -130,7 +133,7 @@ class _ProductPageState extends State<ProductPage> {
                         borderRadius: BorderRadius.circular(20),
                         color: isSelected
                             ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
-                            : Theme.of(context).colorScheme.surfaceVariant,
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
                       ),
                       child: ListTile(
                         onTap: () {
@@ -381,7 +384,7 @@ class _ProductPageState extends State<ProductPage> {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         height: 80,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -448,7 +451,18 @@ class _ProductPageState extends State<ProductPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              // Add to bag logic
+              final addToCartItem = AddToCardModel(
+                productId: widget.product.productId,
+                title: widget.product.title,
+                categoryId: widget.product.categoryId,
+                color: widget.product.colors[colorIndex].title,
+                createdDate: DateTime.now(),
+                price: widget.product.discountedPrice ?? widget.product.price,
+                size: widget.product.sizes[sizeIndex],
+                quantity: quantity,
+              );
+
+              ref.read(cartProvider.notifier).addToCart(addToCartItem);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,

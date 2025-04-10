@@ -26,7 +26,7 @@ class _ProductGridScreenState extends ConsumerState<ProductGridScreen> {
   @override
   Widget build(BuildContext context) {
     final products = ref.watch(categoryProductProvider);
-    final _isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
     return Scaffold(
 
       appBar: AppBar(title: Text('${widget.title} (${products.length})')),
@@ -40,10 +40,10 @@ class _ProductGridScreenState extends ConsumerState<ProductGridScreen> {
                     vertical: 16,
                   ),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: _isPortrait ?2:3,
+                    crossAxisCount: isPortrait ?2:3,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 12,
-                    childAspectRatio: _isPortrait?0.68:1,
+                    childAspectRatio: isPortrait?0.68:1,
                   ),
                   itemCount: products.length,
                   itemBuilder: (context, index) {

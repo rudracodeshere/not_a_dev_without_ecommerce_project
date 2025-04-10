@@ -12,16 +12,16 @@ class SearchPage extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final products = ref.watch(searchProductListProvider);
     final isEmpty = products.isEmpty;
-    final _isPortrait =
+    final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     return Scaffold(
-      appBar:_isPortrait? AppBar(elevation: 0, backgroundColor: colorScheme.background):null,
+      appBar:isPortrait? AppBar(elevation: 0, backgroundColor: colorScheme.surface):null,
       body: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
             Container(
-              decoration: BoxDecoration(color: colorScheme.background),
+              decoration: BoxDecoration(color: colorScheme.surface),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -34,10 +34,10 @@ class SearchPage extends ConsumerWidget {
                   autofocus: true,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: colorScheme.background,
+                    fillColor: colorScheme.surface,
                     prefixIcon: Icon(
                       Icons.search,
-                      color: colorScheme.onBackground,
+                      color: colorScheme.onSurface,
                     ),
                     hintText: 'Search',
                     border: OutlineInputBorder(
@@ -61,10 +61,10 @@ class SearchPage extends ConsumerWidget {
                       vertical: 16,
                     ),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: _isPortrait ? 2 : 3,
+                      crossAxisCount: isPortrait ? 2 : 3,
                       mainAxisSpacing: 16,
                       crossAxisSpacing: 12,
-                      childAspectRatio: _isPortrait ? 0.68 : 1,
+                      childAspectRatio: isPortrait ? 0.68 : 1,
                     ),
                     itemCount: products.length,
                     itemBuilder: (context, index) {

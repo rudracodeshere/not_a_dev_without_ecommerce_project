@@ -4,7 +4,7 @@ import '../../../../models/user.dart';
 class HomeHeader extends StatelessWidget {
   final User? user;
 
-  HomeHeader({Key? key, this.user}) : super(key: key);
+  const HomeHeader({super.key, this.user});
 
   @override
   Widget build(BuildContext context) {

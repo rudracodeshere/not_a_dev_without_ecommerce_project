@@ -97,7 +97,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ).push(MaterialPageRoute(builder: (context) => SearchPage()));
         },
         decoration: InputDecoration(
-          prefixIcon: Icon(Icons.search, color: colorScheme.onBackground),
+          prefixIcon: Icon(Icons.search, color: colorScheme.onSurface),
           hintText: 'Search',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
@@ -125,7 +125,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: colorScheme.onBackground,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 GestureDetector(
@@ -200,7 +200,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: colorScheme.onBackground,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -228,7 +228,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: colorScheme.onBackground,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
@@ -259,7 +259,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 24,
-              color: colorScheme.onBackground,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
