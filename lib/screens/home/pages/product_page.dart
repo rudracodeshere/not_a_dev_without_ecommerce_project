@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:e_commerce_project/providers/cart_provider.dart';
 import 'package:e_commerce_project/models/add_to_cart_model.dart';
+import 'package:e_commerce_project/screens/cart_screen.dart';
+import 'package:e_commerce_project/widgets/favorite_button.dart';
 
 class ProductPage extends ConsumerStatefulWidget {
   final Product product;
@@ -169,7 +171,15 @@ class _ProductPageState extends ConsumerState<ProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: _buildAddToBagButton(),
-      appBar: AppBar(backgroundColor: Colors.transparent),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: _buildFavoriteButton(),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -463,6 +473,12 @@ class _ProductPageState extends ConsumerState<ProductPage> {
               );
 
               ref.read(cartProvider.notifier).addToCart(addToCartItem);
+              
+              // Navigate to cart screen after adding the item
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CartScreen()),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -488,6 +504,20 @@ class _ProductPageState extends ConsumerState<ProductPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildFavoriteButton() {
+    return FavoriteButton(
+      productId: widget.product.productId,
+      title: widget.product.title,
+      categoryId: widget.product.categoryId,
+      price: widget.product.price,
+      discountedPrice: widget.product.discountedPrice,
+      imageUrl: 'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${widget.product.categoryId}.jpg?alt=media',
+      size: 28,
+      showLabel: true,
+      isProductPage: true,
     );
   }
 }

@@ -61,7 +61,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.primary.withOpacity(0.1),
       body:
           _isLoading
               ? Center(
@@ -158,42 +157,43 @@ class _HomePageState extends ConsumerState<HomePage> {
                     children: [
                       category.image != null
                           ? Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              customBorder: CircleBorder(),
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => ProductGridScreen(
-                                          title: category.title,
-                                        ),
-                                  ),
-                                );
-                              },
-                              child: Ink(
-                                width: isPortrait ? 60 : 100,
-                                height: isPortrait ? 60 : 100,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                      'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${category.title}.jpg?alt=media',
+                              
+                              color: Colors.transparent,
+                              child: InkWell(
+                                customBorder: CircleBorder(),
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ProductGridScreen(
+                                        title: category.title,
+                                      ),
                                     ),
-                                    fit: BoxFit.cover,
+                                  );
+                                },
+                                child: Ink(
+                                  padding: EdgeInsets.all(8),
+                                  width: isPortrait ? 60 : 100,
+                                  height: isPortrait ? 60 : 100,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      image: NetworkImage(
+                                        'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${category.title}.jpg?alt=media',
+                                      ),
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          )
+                            )
                           : CircleAvatar(
-                            radius: 30,
-                            backgroundColor: colorScheme.primaryContainer,
-                            child: Icon(
-                              Icons.category,
-                              color: colorScheme.onPrimaryContainer,
+                              radius: 30,
+                              backgroundColor: colorScheme.primaryContainer,
+                              child: Icon(
+                                Icons.category,
+                                color: colorScheme.onPrimaryContainer,
+                              ),
                             ),
-                          ),
                       const SizedBox(height: 8),
                       Text(
                         category.title ?? 'No Title',

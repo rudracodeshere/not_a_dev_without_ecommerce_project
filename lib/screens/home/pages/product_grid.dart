@@ -1,6 +1,7 @@
 import 'package:e_commerce_project/models/product.dart';
 import 'package:e_commerce_project/providers/top_selling_product_provider.dart';
 import 'package:e_commerce_project/screens/home/pages/product_page.dart';
+import 'package:e_commerce_project/widgets/favorite_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -82,18 +83,37 @@ class _ProductGridScreenState extends ConsumerState<ProductGridScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 180,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                image: DecorationImage(
-                  image: NetworkImage(
-                    'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${product.categoryId}.jpg?alt=media',
+            Stack(
+              children: [
+                Container(
+                  height: 180,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    image: DecorationImage(
+                      image: NetworkImage(
+                        'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${product.categoryId}.jpg?alt=media',
+                      ),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  fit: BoxFit.cover,
                 ),
-              ),
+                Positioned(
+                  right: 5,
+                  top: 5,
+                  child: FavoriteButton(
+                    productId: product.productId,
+                    title: product.title,
+                    categoryId: product.categoryId,
+                    // Remove the color parameter as it's not defined in FavoriteButton
+                    price: product.price,
+                    discountedPrice: product.discountedPrice,
+                    imageUrl: 'https://firebasestorage.googleapis.com/v0/b/ecommerce-project-e9ff5.firebasestorage.app/o/images%2F${product.categoryId}.jpg?alt=media',
+                    size: 20,
+                    iconColor: Colors.white,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(

@@ -24,9 +24,19 @@ class CartNotifier extends StateNotifier<List<AddToCardModel>> {
   }
 
   void addToCart(AddToCardModel item) {
-    box.add(item);
-    state = [...state, item];
-      for (var item in state) {
+    final existingIndex = state.indexWhere((i) => 
+      i.productId == item.productId && 
+      i.size == item.size && 
+      i.color == item.color);
+    
+    if (existingIndex != -1) {
+      updateItemQuantity(existingIndex, state[existingIndex].quantity + item.quantity);
+    } else {
+      box.add(item);
+      state = [...state, item];
+    }
+    
+    for (var item in state) {
       print(item.title);
     }
   }
@@ -34,6 +44,32 @@ class CartNotifier extends StateNotifier<List<AddToCardModel>> {
   void removeFromCart(int index) {
     box.deleteAt(index);
     state = [...box.values];
+  }
+
+  void updateItemQuantity(int index, int newQuantity) {
+    if (newQuantity <= 0) {
+      removeFromCart(index);
+      return;
+    }
+    
+    final item = state[index];
+    
+    final updatedItem = AddToCardModel(
+      productId: item.productId,
+      title: item.title,
+      categoryId: item.categoryId,
+      color: item.color,
+      createdDate: item.createdDate,
+      price: item.price,
+      size: item.size,
+      quantity: newQuantity,
+    );
+    
+    box.putAt(index, updatedItem);
+    
+    final newState = List<AddToCardModel>.from(state);
+    newState[index] = updatedItem;
+    state = newState;
   }
 
   void clearCart() {

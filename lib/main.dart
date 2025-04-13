@@ -1,4 +1,5 @@
 import 'package:e_commerce_project/models/add_to_cart_model.dart';
+import 'package:e_commerce_project/models/favorite_product.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,9 +19,12 @@ Future<void> main() async {
   await Hive.initFlutter(dir.path);
 
   Hive.registerAdapter(AddToCardModelAdapter());
+  Hive.registerAdapter(FavoriteProductAdapter());
 
   await Hive.openBox<AddToCardModel>('cartBox');
-  runApp(ProviderScope(child: const MainApp()));
+  await Hive.openBox<FavoriteProduct>('favorites');
+  
+  runApp(const ProviderScope(child: MainApp()));
 }
 
 class MainApp extends StatelessWidget {
@@ -36,5 +40,4 @@ class MainApp extends StatelessWidget {
       home: const SplashScreen(),
     );
   }
-
 }
