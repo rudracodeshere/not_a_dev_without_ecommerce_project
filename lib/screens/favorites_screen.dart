@@ -1,5 +1,4 @@
 import 'package:e_commerce_project/models/favorite_product.dart';
-import 'package:e_commerce_project/models/product.dart';
 import 'package:e_commerce_project/providers/favorites_provider.dart';
 import 'package:e_commerce_project/providers/top_selling_product_provider.dart';
 import 'package:e_commerce_project/screens/home/pages/product_page.dart';
